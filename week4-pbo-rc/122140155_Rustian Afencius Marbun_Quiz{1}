@@ -1,0 +1,63 @@
+import random
+
+def generate_papan():
+    papan = [[0 for _ in range(3)] for _ in range(3)]
+    bom_baris = random.randint(0, 2)
+    bom_kolom = random.randint(0, 2)
+    papan[bom_baris][bom_kolom] = -1
+    for baris in range(3):
+        for kolom in range(3):
+            if papan[baris][kolom] != -1:
+                for i in range(-1, 2):
+                    for j in range(-1, 2):
+                        if 0 <= baris + i < 3 and 0 <= kolom + j < 3 and papan[baris + i][kolom + j] == -1:
+                            papan[baris][kolom] += 1
+    return papan
+
+def cetak_papan(papan, terbuka):
+    print("Papan Minesweeper:")
+    for baris in range(3):
+        for kolom in range(3):
+            if terbuka[baris][kolom]:
+                print(papan[baris][kolom], end=" ")
+            else:
+                print("#", end=" ")
+        print()
+
+def buka_sel(papan, terbuka, baris, kolom):
+    if terbuka[baris][kolom]:
+        print("Sel ini sudah terbuka.")
+        return
+    terbuka[baris][kolom] = True
+    if papan[baris][kolom] == -1:
+        print("Boom! Anda kalah.")
+        terbuka[baris][kolom] = False
+        for baris in range(3):
+            for kolom in range(3):
+                terbuka[baris][kolom] = True
+        cetak_papan(papan, terbuka)
+        return
+    elif papan[baris][kolom] == 0:
+        for i in range(-1, 2):
+            for j in range(-1, 2):
+                if 0 <= baris + i < 3 and 0 <= kolom + j < 3 and not terbuka[baris + i][kolom + j]:
+                    buka_sel(papan, terbuka, baris + i, kolom + j)
+
+def main():
+    papan = generate_papan()
+    terbuka = [[False for _ in range(3)] for _ in range(3)]
+    print("Selamat datang di Minesweeper!")
+    cetak_papan(papan, terbuka)
+    while True:
+        baris = int(input("Masukkan baris (0-2): "))
+        kolom = int(input("Masukkan kolom (0-2): "))
+        if not (0 <= baris < 3 and 0 <= kolom < 3):
+            print("Masukkan angka antara 0 hingga 2.")
+            continue
+        buka_sel(papan, terbuka, baris, kolom)
+        cetak_papan(papan, terbuka)
+        if all(all(terbuka[baris][kolom] or papan[baris][kolom] == -1 for kolom in range(3)) for baris in range(3)):
+            print("Selamat! Anda menang!")
+            break
+
+main()
